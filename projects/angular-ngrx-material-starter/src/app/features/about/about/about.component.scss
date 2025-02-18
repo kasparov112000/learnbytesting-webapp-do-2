@@ -1,4 +1,6 @@
+@use "sass:map";
 @import '../../../../styles-variables';
+
 
 h1 {
   text-align: center;
@@ -167,7 +169,8 @@ h2 {
   }
 }
 
-@media (max-width: map-get($grid-breakpoints, sm)) {
+@media (max-width: map.get($grid-breakpoints, sm)) {
+
   .background {
     padding: 40px 0 0 0;
 
