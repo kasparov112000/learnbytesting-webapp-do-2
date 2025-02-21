@@ -1,11 +1,16 @@
 # Stage 1: Build the Angular application
 FROM node:20-alpine as builder
 
+# Copy package files
+COPY package*.json ./
+
+ARG NPM_TOKEN
+
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy and set up NPM authentication
+ENV NPM_TOKEN=${NPM_TOKEN}
 
 # Install dependencies
 RUN npm install
