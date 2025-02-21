@@ -1,4 +1,4 @@
-# Angular 19 Material Starter with Modern Features
+# Update LBT Webapp to use latest Angular 19
 
 Originally created by [@tomastrajan](https://twitter.com/tomastrajan)
 Modernized and enhanced for Angular 19 by [Hipolito Nunez](https://github.com/kasparov112000)
