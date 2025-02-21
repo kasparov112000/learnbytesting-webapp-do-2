@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - add-Dockerfile-repo
+      - main
     # paths:
     #   - 'config/**'
     #   - 'site/**'
