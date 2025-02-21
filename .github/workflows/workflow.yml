@@ -3,7 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - release-01
+      - main
+      - add-Dockerfile-repo
     # paths:
     #   - 'config/**'
     #   - 'site/**'
