@@ -82,7 +82,7 @@
     "@angular/compiler-cli": "^19.1.5",
     "@eslint/js": "^9.20.0",
     "@types/eslint": "^9.6.1",
-    "@types/jasmine": "^5.1.5",
+    "@types/jasmine": "^5.1.7",
     "@types/node": "^22.13.1",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",

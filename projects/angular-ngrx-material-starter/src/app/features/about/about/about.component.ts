@@ -14,7 +14,7 @@ import { RouterModule } from '@angular/router';
 })
 export class AboutComponent implements OnInit {
   routeAnimationsElements = ROUTE_ANIMATIONS_ELEMENTS;
-  releaseButler = require('../../../../assets/release-butler.png').default;
+  // releaseButler = require('../../../../assets/release-butler.png').default;
 
   constructor() {}
 
