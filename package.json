@@ -94,6 +94,7 @@
     "karma": "^6.4.4",
     "karma-coverage-istanbul-reporter": "^3.0.3",
     "karma-spec-reporter": "^0.0.36",
+    "null-loader": "^4.0.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "~5.7.3",
