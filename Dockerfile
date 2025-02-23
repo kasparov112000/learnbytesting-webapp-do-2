@@ -1,32 +1,38 @@
 # Stage 1: Build the Angular application
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files and npmrc
+COPY package*.json .npmrc ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies securely
+RUN --mount=type=secret,id=npm_token \
+    export NPM_TOKEN="$(cat /run/secrets/npm_token)" && \
+    npm config set //npm.pkg.github.com/:_authToken ${NPM_TOKEN} && \
+    npm install
 
 # Copy the rest of the application
 COPY . .
 
 # Build the application
-RUN npm run build --prod
+RUN npm run build
 
-# Stage 2: Serve the application using Nginx
+# Stage 2: Setup production environment
 FROM nginx:alpine
 
-# Copy the built application from builder stage
-COPY --from=builder /app/dist/*/browser /usr/share/nginx/html
+# Remove default nginx config
+RUN rm -rf /etc/nginx/conf.d/* /etc/nginx/nginx.conf
 
-# Copy custom Nginx configuration if needed
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy the custom nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose port
+# Copy built app to nginx serve directory
+COPY --from=builder /app/dist/angular-ngrx-material-starter /usr/share/nginx/html
+
+# Expose port 55000
 EXPOSE 55000
 
-# Start Nginx
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
