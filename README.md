@@ -1,6 +1,6 @@
 # Update LBT Webapp to use latest Angular 19
 
-Originally created by [@tomastrajan](https://twitter.com/tomastrajan)
+Originally created, 
 Modernized and enhanced for Angular 19 by [Hipolito Nunez](https://github.com/kasparov112000)
 
 [![license](https://img.shields.io/github/license/kasparov112000/angular-ngrx-material-starter.svg)](https://github.com/kasparov112000/angular-ngrx-material-starter/blob/master/LICENSE) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
