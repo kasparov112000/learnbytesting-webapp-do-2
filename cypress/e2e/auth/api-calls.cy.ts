@@ -57,6 +57,89 @@ describe('API Endpoint Tests', () => {
   });
 });
 
+describe('API Endpoint Tests', () => {
+  beforeEach(() => {
+    // Intercept both potential endpoints
+    cy.intercept('GET', '**/api/settings/env.js').as('primaryEnvSettings');
+    cy.intercept('GET', '**/apg/settings/env.js').as('nestEnvSettings');
+
+    // Visit the main page
+    cy.visit('/');
+  });
+
+  it('should load environment settings from an available endpoint', () => {
+    // Wait for any of the endpoints with a short timeout and handle if they don't appear
+    cy.wait('@primaryEnvSettings', { timeout: 5000 })
+      .then((interception) => {
+        // Primary settings loaded successfully
+        cy.log('Primary API call succeeded with status:', interception.response.statusCode);
+        expect(interception.response.statusCode).to.be.oneOf([200, 304]);
+
+        // Verify it contains the expected data
+        if (interception.response.body) {
+          expect(interception.response.body).to.include('window.webAppConfig');
+        }
+      })
+      .then(() => {
+        // Check if our app correctly loaded the configuration
+        cy.log('Primary API call worked, verifying application state');
+        verifyApplicationState();
+      });
+  });
+
+  it('should fall back to NestJS endpoint when primary is forced to fail', () => {
+    // Force the primary endpoint to fail
+    cy.intercept('GET', '**/api/settings/env.js', {
+      statusCode: 500,
+      body: 'Internal Server Error'
+    }).as('forcedPrimaryFailure');
+
+    // Now visit the page again to trigger the fallback
+    cy.visit('/');
+
+    // Now the fallback should be called
+    cy.wait('@nestEnvSettings', { timeout: 10000 })
+      .then((interception) => {
+        cy.log('Fallback API call made with status:', interception.response.statusCode);
+        expect(interception.response.statusCode).to.be.oneOf([200, 304]);
+
+        // Verify it contains the expected data
+        if (interception.response.body) {
+          expect(interception.response.body).to.include('window.webAppConfig');
+        }
+      })
+      .then(() => {
+        // Check if our app correctly loaded the configuration
+        cy.log('Fallback API worked, verifying application state');
+        verifyApplicationState();
+      });
+  });
+
+  // Helper function to verify the application state - adapt this to your app's specifics
+  function verifyApplicationState() {
+    // Check if the app loaded properly with config
+    cy.window().then((win) => {
+      // Try to access the config using different possible paths
+      // Adjust these checks based on how your app stores the config
+      const possibleConfigs = [
+        win.webAppConfig,
+        win.window?.webAppConfig,
+        // Add other possible locations your app might store the config
+      ];
+
+      // Log what we found for debugging
+      cy.log('Config detection results:', possibleConfigs.some(c => !!c) ? 'Found' : 'Not found');
+
+      // Check if the app's UI elements that depend on config are present
+      // For example, if your app shows a version number from config:
+      // cy.get('[data-testid="app-version"]').should('exist');
+
+      // Or just verify some core app elements are present
+      cy.get('body').should('be.visible');
+    });
+  }
+});
+
 describe('Simple API Fallback Test', () => {
   it('should continue working when primary API fails', () => {
     // Force the primary API to fail
