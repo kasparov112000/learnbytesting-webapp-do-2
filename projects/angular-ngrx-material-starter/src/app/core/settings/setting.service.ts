@@ -22,4 +22,12 @@ export class SettingService extends BaseService {
          responseType: 'text'
       });
   }
+
+  getSettingsFromNest() {
+    const path = `/apg/settings/env.js`;
+    return this.httpClient
+      .get(path, {
+         responseType: 'text'
+      });
+  }
 }

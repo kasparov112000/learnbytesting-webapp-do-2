@@ -182,20 +182,33 @@ export class SettingsEffects {
           }),
           map((settings) => loadSettingsSuccess({ settings })),
           catchError((error: HttpErrorResponse) => {
-            console.error('Error details:', {
+            console.error('Node Orchestrator Error:', {
               status: error.status,
-              statusText: error.statusText,
-              url: error.url,
-              error: error.error,
               message: error.message,
-              type: error.type
+              url: error.url,
             });
-            return of({ type: '[Settings] Load Settings Failure', error });
+
+            // If Node.js orchestrator fails, try Nest.js orchestrator
+            return this.settingService.getSettingsFromNest().pipe(
+              tap(response => {
+                console.log('Fallback to Nest.js:', response);
+              }),
+              map((settings) => loadSettingsSuccess({ settings })),
+              catchError((nestError: HttpErrorResponse) => {
+                console.error('Nest.js Orchestrator Error:', {
+                  status: nestError.status,
+                  message: nestError.message,
+                  url: nestError.url,
+                });
+                return of({ type: '[Settings] Load Settings Failure', error: nestError });
+              })
+            );
           })
         )
       )
     )
   );
+
 
   constructor(
     private readonly settingService: SettingService,

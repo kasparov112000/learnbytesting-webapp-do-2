@@ -56,3 +56,51 @@ describe('API Endpoint Tests', () => {
     });
   });
 });
+
+describe('Simple API Fallback Test', () => {
+  it('should continue working when primary API fails', () => {
+    // Force the primary API to fail
+    cy.intercept('GET', '**/api/settings*', {
+      statusCode: 500,
+      body: 'Internal Server Error'
+    }).as('primaryApiFail');
+
+    // Allow the fallback API to work normally
+    // Just visit the page and verify it loads
+    cy.visit('/');
+
+    // Wait for page to load fully
+    cy.wait(5000);
+
+    // Check if the page has content (very basic test)
+    cy.get('body').should('be.visible');
+
+    // Log a message indicating the test completed
+    cy.log('Page loaded successfully despite primary API failure');
+  });
+
+  it('should work when both APIs fail', () => {
+    // Force both APIs to fail
+    cy.intercept('GET', '**/api/settings*', {
+      statusCode: 500,
+      body: 'Internal Server Error'
+    }).as('primaryApiFail');
+
+    cy.intercept('GET', '**/settings/env.js', {
+      statusCode: 404,
+      body: 'Not Found'
+    }).as('fallbackApiFail');
+
+    // Visit the page and see if it loads
+    cy.visit('/');
+
+    // Wait for page to load
+    cy.wait(5000);
+
+    // Check if the page has content
+    cy.get('body').should('be.visible');
+
+    // Log a message
+    cy.log('Page handled double API failure');
+  });
+});

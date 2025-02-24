@@ -179,30 +179,6 @@ describe('SettingsEffects', () => {
     });
   });
 
-  it('should dispatch error action on API failure', (done) => {
-    // Arrange
-    const errorResponse = new HttpErrorResponse({
-      error: 'Test error',
-      status: 404,
-      statusText: 'Not Found',
-      url: 'api/settings'
-    });
-
-    settingService.getSettings.and.returnValue(throwError(() => errorResponse));
-    actions$.next(loadSettings());
-
-    // Act
-    effects.loadSettings$.subscribe(action => {
-      // Assert
-      expect(action).toEqual({
-        type: '[Settings] Load Settings Failure',
-        error: errorResponse
-      });
-      expect(settingService.getSettings).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('should log response details when API call is successful', (done) => {
     // Arrange
     settingService.getSettings.and.returnValue(of(mockSettings));
@@ -218,31 +194,269 @@ describe('SettingsEffects', () => {
     });
   });
 
-  it('should log error details when API call fails', (done) => {
-    // Arrange
-    const errorResponse = new HttpErrorResponse({
-      error: 'Test error',
-      status: 500,
-      statusText: 'Internal Server Error',
-      url: 'api/settings'
-    });
+  // Updated test cases for the modified loadSettings$ effect
 
-    settingService.getSettings.and.returnValue(throwError(() => errorResponse));
-    spyOn(console, 'error');
-    actions$.next(loadSettings());
-
-    // Act
-    effects.loadSettings$.subscribe(() => {
-      // Assert
-      expect(console.error).toHaveBeenCalledWith('Error details:', {
-        status: 500,
-        statusText: 'Internal Server Error',
-        url: 'api/settings',
-        error: 'Test error',
-        message: errorResponse.message,
-        type: errorResponse.type
-      });
-      done();
-    });
+it('should log error details when API call fails and fallback also fails', (done) => {
+  // Arrange
+  const nodeError = new HttpErrorResponse({
+    error: 'Node orchestrator error',
+    status: 500,
+    statusText: 'Internal Server Error',
+    url: 'api/settings'
   });
+
+  const nestError = new HttpErrorResponse({
+    error: 'Nest orchestrator error',
+    status: 404,
+    statusText: 'Not Found',
+    url: 'nest/settings/env.js'
+  });
+
+  // Mock the original service call to fail
+  settingService.getSettings.and.returnValue(throwError(() => nodeError));
+
+  // Mock the fallback service call to also fail
+  settingService.getSettingsFromNest = jasmine.createSpy().and.returnValue(
+    throwError(() => nestError)
+  );
+
+  // Spy on console.error to verify logs
+  spyOn(console, 'error');
+
+  // Dispatch the action
+  actions$.next(loadSettings());
+
+  // Act & Assert
+  effects.loadSettings$.subscribe(action => {
+    // Verify the Node.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Node Orchestrator Error:', {
+      status: 500,
+      message: nodeError.message,
+      url: 'api/settings',
+    });
+
+    // Verify the Nest.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Nest.js Orchestrator Error:', {
+      status: 404,
+      message: nestError.message,
+      url: 'nest/settings/env.js',
+    });
+
+    // Verify the correct error action was dispatched
+    expect(action).toEqual({
+      type: '[Settings] Load Settings Failure',
+      error: nestError
+    });
+
+    done();
+  });
+});
+
+// Updated test cases for the modified loadSettings$ effect
+
+it('should log error details when API call fails and fallback also fails', (done) => {
+  // Arrange
+  const nodeError = new HttpErrorResponse({
+    error: 'Node orchestrator error',
+    status: 500,
+    statusText: 'Internal Server Error',
+    url: 'api/settings'
+  });
+
+  const nestError = new HttpErrorResponse({
+    error: 'Nest orchestrator error',
+    status: 404,
+    statusText: 'Not Found',
+    url: 'nest/settings/env.js'
+  });
+
+  // Mock the original service call to fail
+  settingService.getSettings.and.returnValue(throwError(() => nodeError));
+
+  // Mock the fallback service call to also fail
+  settingService.getSettingsFromNest = jasmine.createSpy().and.returnValue(
+    throwError(() => nestError)
+  );
+
+  // Spy on console.error to verify logs
+  spyOn(console, 'error');
+
+  // Dispatch the action
+  actions$.next(loadSettings());
+
+  // Act & Assert
+  effects.loadSettings$.subscribe(action => {
+    // Verify the Node.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Node Orchestrator Error:', {
+      status: 500,
+      message: nodeError.message,
+      url: 'api/settings',
+    });
+
+    // Verify the Nest.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Nest.js Orchestrator Error:', {
+      status: 404,
+      message: nestError.message,
+      url: 'nest/settings/env.js',
+    });
+
+    // Verify the correct error action was dispatched
+    expect(action).toEqual({
+      type: '[Settings] Load Settings Failure',
+      error: nestError
+    });
+
+    done();
+  });
+});
+
+// Updated test cases for the modified loadSettings$ effect
+
+it('should log error details when API call fails and fallback also fails', (done) => {
+  // Arrange
+  const nodeError = new HttpErrorResponse({
+    error: 'Node orchestrator error',
+    status: 500,
+    statusText: 'Internal Server Error',
+    url: 'api/settings'
+  });
+
+  const nestError = new HttpErrorResponse({
+    error: 'Nest orchestrator error',
+    status: 404,
+    statusText: 'Not Found',
+    url: 'nest/settings/env.js'
+  });
+
+  // Mock the original service call to fail
+  settingService.getSettings.and.returnValue(throwError(() => nodeError));
+
+  // Mock the fallback service call to also fail
+  settingService.getSettingsFromNest = jasmine.createSpy().and.returnValue(
+    throwError(() => nestError)
+  );
+
+  // Spy on console.error to verify logs
+  spyOn(console, 'error');
+
+  // Dispatch the action
+  actions$.next(loadSettings());
+
+  // Act & Assert
+  effects.loadSettings$.subscribe(action => {
+    // Verify the Node.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Node Orchestrator Error:', {
+      status: 500,
+      message: nodeError.message,
+      url: 'api/settings',
+    });
+
+    // Verify the Nest.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Nest.js Orchestrator Error:', {
+      status: 404,
+      message: nestError.message,
+      url: 'nest/settings/env.js',
+    });
+
+    // Verify the correct error action was dispatched
+    expect(action).toEqual({
+      type: '[Settings] Load Settings Failure',
+      error: nestError
+    });
+
+    done();
+  });
+});
+
+it('should dispatch success action on fallback success when primary API fails', (done) => {
+  // Arrange
+  const nodeError = new HttpErrorResponse({
+    error: 'Node orchestrator error',
+    status: 500,
+    statusText: 'Internal Server Error',
+    url: 'api/settings'
+  });
+
+  const fallbackSettings = { version: '1.0.0', apiUrl: 'http://localhost:3700' };
+
+  // Mock the original service call to fail
+  settingService.getSettings.and.returnValue(throwError(() => nodeError));
+
+  // Mock the fallback service call to succeed
+  settingService.getSettingsFromNest = jasmine.createSpy().and.returnValue(
+    of('window.webAppConfig = {"version":"1.0.0","apiUrl":"http://localhost:3700"};')
+  );
+
+  // Spy on console.error and console.log
+  spyOn(console, 'error');
+  spyOn(console, 'log');
+
+  // Dispatch the action
+  actions$.next(loadSettings());
+
+  // Act & Assert
+  effects.loadSettings$.subscribe(action => {
+    // Verify the Node.js error was logged
+    expect(console.error).toHaveBeenCalledWith('Node Orchestrator Error:', {
+      status: 500,
+      message: nodeError.message,
+      url: 'api/settings',
+    });
+
+    // Verify fallback was logged
+    expect(console.log).toHaveBeenCalledWith('Fallback to Nest.js:', 'window.webAppConfig = {"version":"1.0.0","apiUrl":"http://localhost:3700"};');
+
+    // Verify the success action was dispatched with fallback data
+    expect(action).toEqual(
+      loadSettingsSuccess({ settings: 'window.webAppConfig = {"version":"1.0.0","apiUrl":"http://localhost:3700"};' })
+    );
+
+    done();
+  });
+});
+
+it('should dispatch error action when both primary and fallback APIs fail', (done) => {
+  // Arrange
+  const nodeError = new HttpErrorResponse({
+    error: 'Node orchestrator error',
+    status: 500,
+    statusText: 'Internal Server Error',
+    url: 'api/settings'
+  });
+
+  const nestError = new HttpErrorResponse({
+    error: 'Nest orchestrator error',
+    status: 404,
+    statusText: 'Not Found',
+    url: 'nest/settings/env.js'
+  });
+
+  // Mock the original service call to fail
+  settingService.getSettings.and.returnValue(throwError(() => nodeError));
+
+  // Mock the fallback service call to also fail
+  settingService.getSettingsFromNest = jasmine.createSpy().and.returnValue(
+    throwError(() => nestError)
+  );
+
+  // Dispatch the action
+  actions$.next(loadSettings());
+
+  // Act & Assert
+  effects.loadSettings$.subscribe(action => {
+    // Verify the correct error action was dispatched with the Nest error
+    expect(action).toEqual({
+      type: '[Settings] Load Settings Failure',
+      error: nestError
+    });
+
+    // Verify both service methods were called
+    expect(settingService.getSettings).toHaveBeenCalledTimes(1);
+    expect(settingService.getSettingsFromNest).toHaveBeenCalledTimes(1);
+
+    done();
+  });
+});
+
+
 });
