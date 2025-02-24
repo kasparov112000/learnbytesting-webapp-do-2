@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - add-Dockerfile-repo
+      - hook-angular-to-backend
     # paths:
     #   - 'config/**'
     #   - 'site/**'
