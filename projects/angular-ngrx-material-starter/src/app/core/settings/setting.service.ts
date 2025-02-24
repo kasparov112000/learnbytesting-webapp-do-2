@@ -22,6 +22,7 @@ export class SettingService extends BaseService {
     const path = `/api/settings/env.js`;
     return this.httpClient
       .get(path, {
+         responseType: 'text'
         // headers: this.headers,
         // withCredentials: true
       });

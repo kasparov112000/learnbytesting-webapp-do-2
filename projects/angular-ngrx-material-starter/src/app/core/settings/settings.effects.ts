@@ -40,6 +40,7 @@ import {
 } from './settings.selectors';
 import { State } from './settings.model';
 import { SettingService } from './setting.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export const SETTINGS_KEY = 'SETTINGS';
 
@@ -173,16 +174,22 @@ export class SettingsEffects {
   loadSettings$ = createEffect(() =>
     this.actions$.pipe(
       ofType(loadSettings),
-      // map(() => {
-      //   console.log('Load settings effect triggered');
-      //   return loadSettingsSuccess();  // Make sure we spread the settings
-      // })
       switchMap(() =>
         this.settingService.getSettings().pipe(
-          tap(settings => console.log('Settings loaded:', settings)),
-          map(() => loadSettingsSuccess()),
-          catchError(error => {
-            console.error('Error loading settings:', ...error);
+          tap(response => {
+            console.log('Raw response:', response);
+            console.log('Response type:', typeof response);
+          }),
+          map((settings) => loadSettingsSuccess({ settings })),
+          catchError((error: HttpErrorResponse) => {
+            console.error('Error details:', {
+              status: error.status,
+              statusText: error.statusText,
+              url: error.url,
+              error: error.error,
+              message: error.message,
+              type: error.type
+            });
             return of({ type: '[Settings] Load Settings Failure', error });
           })
         )
