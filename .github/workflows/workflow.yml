@@ -90,22 +90,6 @@ jobs:
           wait-on-timeout: 300
         env:
           CYPRESS_BASE_URL: 'https://app.learnbytesting.ai'
-      - name: Cypress Tests against Pod
-        uses: cypress-io/github-action@v6.5.0
-        with:
-          config-file: cypress.config.ts
-          wait-on: 'https://app.learnbytesting.ai'
-          wait-on-timeout: 300
-        env:
-          CYPRESS_BASE_URL: 'https://app.learnbytesting.ai'
-      - name: Cypress Tests against Pod
-        uses: cypress-io/github-action@v6.5.0
-        with:
-          config-file: cypress.config.ts
-          wait-on: 'https://app.learnbytesting.ai'
-          wait-on-timeout: 300
-        env:
-          CYPRESS_BASE_URL: 'https://app.learnbytesting.ai'
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@v4
