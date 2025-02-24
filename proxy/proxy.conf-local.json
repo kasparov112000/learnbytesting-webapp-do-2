@@ -1,0 +1,21 @@
+{
+    "/api": {
+        "target": "https://orchestrator.learnbytesting.ai/",
+        "secure": false,
+        "changeOrigin": true,
+      "logLevel": "debug",
+      "pathRewrite": {
+        "^/api": ""
+      }
+    },
+
+    "/apg": {
+      "target": "https://kafka.learnbytesting.ai/",
+      "secure": false,
+      "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/apg": ""
+    }
+  }
+}

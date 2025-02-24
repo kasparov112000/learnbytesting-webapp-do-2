@@ -7,7 +7,9 @@ import {
   actionSettingsChangeHour,
   actionSettingsChangeLanguage,
   actionSettingsChangeStickyHeader,
-  actionSettingsChangeTheme
+  actionSettingsChangeTheme,
+  loadSettings,
+  loadSettingsSuccess
 } from './settings.actions';
 import { Action, createReducer, on } from '@ngrx/store';
 
@@ -20,7 +22,8 @@ export const initialState: SettingsState = {
   pageAnimations: true,
   pageAnimationsDisabled: false,
   elementsAnimations: true,
-  hour: 0
+  hour: 0,
+  loadSettings: {}
 };
 
 const reducer = createReducer(
@@ -42,7 +45,9 @@ const reducer = createReducer(
       pageAnimationsDisabled,
       pageAnimations: false
     })
-  )
+  ),
+  on(loadSettings, state => ({ ...state, loadSettings: {} })),
+  on(loadSettingsSuccess, state => ({ ...state }))
 );
 
 export function settingsReducer(

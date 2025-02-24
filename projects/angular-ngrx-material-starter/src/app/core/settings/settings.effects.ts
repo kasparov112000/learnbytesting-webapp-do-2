@@ -9,7 +9,10 @@ import {
   tap,
   withLatestFrom,
   distinctUntilChanged,
-  filter
+  filter,
+  map,
+  catchError,
+  switchMap
 } from 'rxjs/operators';
 
 import { selectSettingsState } from '../core.state';
@@ -25,7 +28,9 @@ import {
   actionSettingsChangeLanguage,
   actionSettingsChangeTheme,
   actionSettingsChangeStickyHeader,
-  actionSettingsChangeHour
+  actionSettingsChangeHour,
+  loadSettings,
+  loadSettingsSuccess
 } from './settings.actions';
 import {
   selectEffectiveTheme,
@@ -34,6 +39,7 @@ import {
   selectElementsAnimations
 } from './settings.selectors';
 import { State } from './settings.model';
+import { SettingService } from './setting.service';
 
 export const SETTINGS_KEY = 'SETTINGS';
 
@@ -164,5 +170,27 @@ export class SettingsEffects {
     { dispatch: false, allowSignalWrites: true }
   );
 
-  constructor() {}
+  loadSettings$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadSettings),
+      // map(() => {
+      //   console.log('Load settings effect triggered');
+      //   return loadSettingsSuccess();  // Make sure we spread the settings
+      // })
+      switchMap(() =>
+        this.settingService.getSettings().pipe(
+          tap(settings => console.log('Settings loaded:', settings)),
+          map(() => loadSettingsSuccess()),
+          catchError(error => {
+            console.error('Error loading settings:', ...error);
+            return of({ type: '[Settings] Load Settings Failure', error });
+          })
+        )
+      )
+    )
+  );
+
+  constructor(
+    private readonly settingService: SettingService,
+  ) {}
 }
