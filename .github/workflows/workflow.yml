@@ -71,18 +71,25 @@ jobs:
 
       - name: Wait for pod to be ready
         run: |
-          echo "Listing all pods..."
-          kubectl get pods --all-namespaces
+          echo "Looking for webapp pods..."
+          kubectl get pods -A | grep webapp
 
           echo "Waiting for pod to be ready..."
-          kubectl get pods -l app.kubernetes.io/name=webapp
-          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=webapp --timeout=300s
+          kubectl wait --for=condition=ready pod -l app=webapp -n default --timeout=300s
 
-          echo "Getting pod status..."
-          kubectl get pods -l app.kubernetes.io/name=webapp
+          echo "Getting final pod status..."
+          kubectl get pods -A | grep webapp
 
           echo "Pod is ready"
 
+      - name: Cypress Tests against Pod
+        uses: cypress-io/github-action@v6.5.0
+        with:
+          config-file: cypress.config.ts
+          wait-on: 'https://app.learnbytesting.ai'
+          wait-on-timeout: 300
+        env:
+          CYPRESS_BASE_URL: 'https://app.learnbytesting.ai'
       - name: Cypress Tests against Pod
         uses: cypress-io/github-action@v6.5.0
         with:
