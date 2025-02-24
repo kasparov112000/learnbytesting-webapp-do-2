@@ -9,22 +9,17 @@ import { AuthService } from '../auth/auth.service';
 export class SettingService extends BaseService {
   constructor(
     httpClient: HttpClient,
-    authService: AuthService,
-    // messagingService: MessagingService
+    authService: AuthService
   )
     {
-    super('settings', httpClient, authService,
-      // messagingService
+    super('settings', httpClient, authService
     );
   }
   getSettings(){
-    //  ('/api/settings/env.js')
     const path = `/api/settings/env.js`;
     return this.httpClient
       .get(path, {
          responseType: 'text'
-        // headers: this.headers,
-        // withCredentials: true
       });
   }
 }
