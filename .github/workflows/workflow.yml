@@ -71,7 +71,10 @@ jobs:
 
       - name: Wait for pod to be ready
         run: |
-          kubectl wait --for=condition=ready pod -l app=webapp --timeout=300s
+          echo "Waiting for pod to be ready..."
+          kubectl wait --for=condition=ready pod -l app=webapp-helm --timeout=300s
+          echo "Getting pod status..."
+          kubectl get pods -l app=webapp-helm
           echo "Pod is ready"
 
       - name: Cypress Tests against Pod
