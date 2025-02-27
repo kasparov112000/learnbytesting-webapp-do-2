@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs';
 
-import { environment as env } from '../../environments/environment';
+import { environment as env } from '../../environments_mark_for_delete/environment';
 
 import {
   authLogin,
@@ -18,7 +18,8 @@ import {
 } from '../core/core.module';
 import {
   actionSettingsChangeAnimationsPageDisabled,
-  actionSettingsChangeLanguage
+  actionSettingsChangeLanguage,
+  loadSettings
 } from '../core/settings/settings.actions';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
@@ -76,6 +77,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this._storageService.testLocalStorage();
+
     if (AppComponent.isIEorEdgeOrSafari()) {
       this._store.dispatch(
         actionSettingsChangeAnimationsPageDisabled({
@@ -88,6 +90,8 @@ export class AppComponent implements OnInit {
     this.stickyHeader$ = this._store.pipe(select(selectSettingsStickyHeader));
     this.language$ = this._store.pipe(select(selectSettingsLanguage));
     this.theme$ = this._store.pipe(select(selectEffectiveTheme));
+
+    this._store.dispatch(loadSettings());
   }
 
   onLoginClick() {

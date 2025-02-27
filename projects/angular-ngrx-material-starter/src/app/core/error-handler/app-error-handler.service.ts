@@ -1,7 +1,7 @@
 import { Injectable, ErrorHandler } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments_mark_for_delete/environment';
 
 import { NotificationService } from '../notifications/notification.service';
 

@@ -14,6 +14,7 @@ export interface SettingsState {
   pageAnimationsDisabled: boolean;
   elementsAnimations: boolean;
   hour: number;
+  loadSettings: object;
 }
 
 export interface State extends AppState {

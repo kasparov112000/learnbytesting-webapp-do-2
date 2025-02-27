@@ -5,11 +5,7 @@ on:
     branches:
       - main
       - add-Dockerfile-repo
-    # paths:
-    #   - 'config/**'
-    #   - 'site/**'
-    #   - 'Dockerfile'
-    #   - '.github/workflows/**'
+      - hook-angular-to-backend
 
 jobs:
   build:
@@ -26,7 +22,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Install doctl
-        uses: digitalocean/action-doctl@v2  # Keeping v2 as it's the latest version
+        uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -73,12 +69,27 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Cypress Tests
+      - name: Wait for pod to be ready
+        run: |
+          echo "Looking for webapp pods..."
+          kubectl get pods -n default -l app.kubernetes.io/instance=webapp
+
+          echo "Waiting for pod to be ready..."
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=webapp -n default --timeout=3000s
+
+          echo "Getting final pod status..."
+          kubectl get pods -n default -l app.kubernetes.io/instance=webapp
+
+          echo "Pod is ready"
+
+      - name: Cypress Tests against Pod
         uses: cypress-io/github-action@v6.5.0
         with:
-          start: npm run test:dev
-          wait-on: 'http://localhost:4200'
-          wait-on-timeout: 120
+          config-file: cypress.config.ts
+          wait-on: 'https://app.learnbytesting.ai'
+          wait-on-timeout: 300
+        env:
+          CYPRESS_BASE_URL: 'https://app.learnbytesting.ai'
 
       - name: Upload Screenshots
         uses: actions/upload-artifact@v4

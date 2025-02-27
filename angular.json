@@ -95,7 +95,11 @@
           },
           "configurations": {
             "production": {
-              "browserTarget": "angular-ngrx-material-starter:build:production"
+              "browserTarget": "angular-ngrx-material-starter:build:production",
+               "proxyConfig": "proxy/proxy.conf.json"
+            },
+            "local": {
+              "proxyConfig": "proxy/proxy.conf-local.json"
             }
           }
         },

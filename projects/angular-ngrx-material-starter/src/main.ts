@@ -1,5 +1,5 @@
 import { enableProdMode } from '@angular/core';
-  import { environment } from './environments/environment';
+  import { environment } from './environments_mark_for_delete/environment';
 import { AppComponent } from './app/app/app.component';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
@@ -13,4 +13,3 @@ if (environment.production) {
 bootstrapApplication(AppComponent, appConfig).catch((err) =>
   console.error(err)
 );
-   

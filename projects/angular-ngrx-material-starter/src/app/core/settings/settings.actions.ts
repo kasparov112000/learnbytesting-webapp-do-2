@@ -39,3 +39,9 @@ export const actionSettingsChangeHour = createAction(
   '[Settings] Change Hours',
   props<{ hour: number }>()
 );
+
+export const loadSettings = createAction('[Settings] Load Settings');
+export const loadSettingsSuccess = createAction(
+  '[Settings] Load Settings Success',
+  props<{ settings: string }>()
+);

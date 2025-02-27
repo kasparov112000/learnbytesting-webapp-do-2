@@ -9,7 +9,10 @@ import {
   tap,
   withLatestFrom,
   distinctUntilChanged,
-  filter
+  filter,
+  map,
+  catchError,
+  switchMap
 } from 'rxjs/operators';
 
 import { selectSettingsState } from '../core.state';
@@ -25,7 +28,9 @@ import {
   actionSettingsChangeLanguage,
   actionSettingsChangeTheme,
   actionSettingsChangeStickyHeader,
-  actionSettingsChangeHour
+  actionSettingsChangeHour,
+  loadSettings,
+  loadSettingsSuccess
 } from './settings.actions';
 import {
   selectEffectiveTheme,
@@ -34,6 +39,8 @@ import {
   selectElementsAnimations
 } from './settings.selectors';
 import { State } from './settings.model';
+import { SettingService } from './setting.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 export const SETTINGS_KEY = 'SETTINGS';
 
@@ -83,7 +90,7 @@ export class SettingsEffects {
           actionSettingsChangeTheme
         ),
         withLatestFrom(this.store.pipe(select(selectSettingsState))),
-        tap(([action, settings]) =>
+        tap(([, settings]) =>
           this.localStorageService.setItem(SETTINGS_KEY, settings)
         )
       ),
@@ -107,7 +114,7 @@ export class SettingsEffects {
             this.store.pipe(select(selectElementsAnimations))
           ])
         ),
-        tap(([action, [pageAnimations, elementsAnimations]]) =>
+        tap(([, [pageAnimations, elementsAnimations]]) =>
           this.animationsService.updateRouteAnimationType(
             pageAnimations,
             elementsAnimations
@@ -121,7 +128,7 @@ export class SettingsEffects {
     () =>
       merge(INIT, this.actions$.pipe(ofType(actionSettingsChangeTheme))).pipe(
         withLatestFrom(this.store.pipe(select(selectEffectiveTheme))),
-        tap(([action, effectiveTheme]) => {
+        tap(([, effectiveTheme]) => {
           const classList = this.overlayContainer.getContainerElement()
             .classList;
           const toRemove = Array.from(classList).filter((item: string) =>
@@ -164,5 +171,48 @@ export class SettingsEffects {
     { dispatch: false, allowSignalWrites: true }
   );
 
-  constructor() {}
+  loadSettings$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(loadSettings),
+      switchMap(() =>
+        // Start with Nest.js orchestrator first
+        this.settingService.getEnvSettingsFromNest().pipe(
+          tap(response => {
+            console.log('Nest.js response:', response);
+            console.log('Response type:', typeof response);
+          }),
+          map((settings) => loadSettingsSuccess({ settings })),
+          catchError((nestError: HttpErrorResponse) => {
+            console.error('Nest.js Orchestrator Error:', {
+              status: nestError.status,
+              message: nestError.message,
+              url: nestError.url,
+            });
+
+            // If Nest.js orchestrator fails, fall back to Node.js orchestrator
+            return this.settingService.getEnvSettings().pipe(
+              tap(response => {
+                console.log('Fallback to Node.js:', response);
+                console.log('Response type:', typeof response);
+              }),
+              map((settings) => loadSettingsSuccess({ settings })),
+              catchError((nodeError: HttpErrorResponse) => {
+                console.error('Node Orchestrator Error:', {
+                  status: nodeError.status,
+                  message: nodeError.message,
+                  url: nodeError.url,
+                });
+                return of({ type: '[Settings] Load Settings Failure', error: nodeError });
+              })
+            );
+          })
+        )
+      )
+    )
+  );
+
+
+  constructor(
+    private readonly settingService: SettingService,
+  ) {}
 }

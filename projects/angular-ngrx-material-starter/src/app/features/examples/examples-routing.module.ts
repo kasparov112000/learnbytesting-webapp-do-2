@@ -26,7 +26,7 @@ import { UserService } from './simple-state-management/user.service';
 import { StockMarketEffects } from './stock-market/stock-market.effects';
 import { StockMarketService } from './stock-market/stock-market.service';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments_mark_for_delete/environment';
 
 export function httpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(
@@ -152,7 +152,7 @@ const routes: Routes = [
         deps: [HttpClient]
       }
     }).providers,
-  
+
   ]
 })
 export class ExamplesRoutingModule {}
