@@ -3,7 +3,7 @@
 describe('API Endpoint Tests', () => {
   beforeEach(() => {
     // Start intercepting before loading the page
-    cy.intercept('GET', '**/api/settings/env.js').as('envSettings');
+    cy.intercept('GET', '**/apg/settings/env.js').as('envSettings');
 
     // Visit the main page
     cy.visit('/');
@@ -27,7 +27,7 @@ describe('API Endpoint Tests', () => {
       expect(interception.request.method).to.eq('GET');
 
       // Verify the URL pattern
-      expect(interception.request.url).to.include('/api/settings/env.js');
+      expect(interception.request.url).to.include('/apg/settings/env.js');
     });
   });
 
@@ -69,7 +69,7 @@ describe('API Endpoint Tests', () => {
 
   it('should load environment settings from an available endpoint', () => {
     // Wait for any of the endpoints with a short timeout and handle if they don't appear
-    cy.wait('@primaryEnvSettings', { timeout: 5000 })
+    cy.wait('@nestEnvSettings', { timeout: 5000 })
       .then((interception) => {
         // Primary settings loaded successfully
         cy.log('Primary API call succeeded with status:', interception.response.statusCode);
