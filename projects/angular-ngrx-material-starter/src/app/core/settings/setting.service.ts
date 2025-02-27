@@ -15,7 +15,7 @@ export class SettingService extends BaseService {
     super('settings', httpClient, authService
     );
   }
-  getSettings(){
+  getEnvSettings(){
     const path = `/api/settings/env.js`;
     return this.httpClient
       .get(path, {
@@ -23,7 +23,7 @@ export class SettingService extends BaseService {
       });
   }
 
-  getSettingsFromNest() {
+  getEnvSettingsFromNest() {
     const path = `/apg/settings/env.js`;
     return this.httpClient
       .get(path, {

@@ -175,32 +175,34 @@ export class SettingsEffects {
     this.actions$.pipe(
       ofType(loadSettings),
       switchMap(() =>
-        this.settingService.getSettings().pipe(
+        // Start with Nest.js orchestrator first
+        this.settingService.getEnvSettingsFromNest().pipe(
           tap(response => {
-            console.log('Raw response:', response);
+            console.log('Nest.js response:', response);
             console.log('Response type:', typeof response);
           }),
           map((settings) => loadSettingsSuccess({ settings })),
-          catchError((error: HttpErrorResponse) => {
-            console.error('Node Orchestrator Error:', {
-              status: error.status,
-              message: error.message,
-              url: error.url,
+          catchError((nestError: HttpErrorResponse) => {
+            console.error('Nest.js Orchestrator Error:', {
+              status: nestError.status,
+              message: nestError.message,
+              url: nestError.url,
             });
 
-            // If Node.js orchestrator fails, try Nest.js orchestrator
-            return this.settingService.getSettingsFromNest().pipe(
+            // If Nest.js orchestrator fails, fall back to Node.js orchestrator
+            return this.settingService.getEnvSettings().pipe(
               tap(response => {
-                console.log('Fallback to Nest.js:', response);
+                console.log('Fallback to Node.js:', response);
+                console.log('Response type:', typeof response);
               }),
               map((settings) => loadSettingsSuccess({ settings })),
-              catchError((nestError: HttpErrorResponse) => {
-                console.error('Nest.js Orchestrator Error:', {
-                  status: nestError.status,
-                  message: nestError.message,
-                  url: nestError.url,
+              catchError((nodeError: HttpErrorResponse) => {
+                console.error('Node Orchestrator Error:', {
+                  status: nodeError.status,
+                  message: nodeError.message,
+                  url: nodeError.url,
                 });
-                return of({ type: '[Settings] Load Settings Failure', error: nestError });
+                return of({ type: '[Settings] Load Settings Failure', error: nodeError });
               })
             );
           })
